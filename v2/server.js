@@ -25,10 +25,11 @@ const {
   updateEjerciciosGruposMuscularesController,
   deleteEjerciciosController,
   filtroEjerciciosTipologia,
+  filtroEjerciciosGrupoMuscular,
 } = require("./controllers/ejercicios");
 
 /* Importing the functions from the like.js file. */
-const { postLike } = require("./controllers/like");
+const { postLike, getLike, deleteLike } = require("./controllers/like");
 
 const { authUser } = require("./middlewares/auth");
 
@@ -55,33 +56,39 @@ app.post("/login", loginController);
 app.post("/ejercicios", authUser, newEjerciciosController);
 app.get("/ejercicios", authUser, getEjerciciosController);
 app.get("/ejercicios/:id", authUser, getEjercicioController);
-app.get("/ejercicios/tipologia/:id", authUser, filtroEjerciciosTipologia);
-app.get("/ejercicios/grupoMuscular/:id", authUser, filtroEjerciciosTipologia);
+app.get(
+  "/ejercicios/filtro/tipologia/:id",
+  authUser,
+  filtroEjerciciosTipologia
+);
+app.get(
+  "/ejercicios/filtro/grupoMuscular/:id",
+  authUser,
+  filtroEjerciciosGrupoMuscular
+);
 app.put("/ejercicios/nombre/:id", authUser, updateEjerciciosNombreController);
+app.put("/ejercicios/imagen/:id", authUser, updateEjerciciosImagenController);
 app.put(
-  "/ejercicios/imagen/:id",
+  "/ejercicios/descripcion/:id",
   authUser,
   updateEjerciciosDescripcionController
 );
 app.put(
-  "/ejercicios/descripcion/:id",
-  authUser,
-  updateEjerciciosImagenController
-);
-app.put(
-  "/ejercicios/tipologias/:id",
+  "/ejercicios/tipologia/:id",
   authUser,
   updateEjerciciosTipologiaController
 );
 app.put(
-  "/ejercicios/gruposMusculares/:id",
+  "/ejercicios/grupoMuscular/:id",
   authUser,
   updateEjerciciosGruposMuscularesController
 );
 app.delete("/ejercicios/:id", authUser, deleteEjerciciosController);
 
-//Ruta del like
-app.post("/like/:eleccion", postLike);
+//Rutas del like
+app.get("/like/:id", authUser, getLike);
+app.post("/like/:id", authUser, postLike);
+app.delete("/like/:id", authUser, deleteLike);
 
 //middleware de error 404
 app.use((req, res) => {
