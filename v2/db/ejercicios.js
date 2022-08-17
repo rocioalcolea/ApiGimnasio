@@ -2,31 +2,151 @@
 const { generateError } = require("../helpers");
 const { getConnection } = require("./db");
 
+//modificar el nombre
 const updateEjercicioNombre = async (id, nombre) => {
-  return "nombre";
+  let connection;
+  try {
+    connection = await getConnection();
+
+    const ejercicio = await getEjercicioById(id);
+
+    const [ejerciciobyName] = await connection.query(
+      `UPDATE ejercicios SET nombre=? WHERE id_ejercicio=?`,
+      [nombre, id]
+    );
+
+    return "modificado";
+  } finally {
+    if (connection) connection.release();
+  }
 };
 
+//modificar la descripcion
 const updateEjercicioDescripcion = async (id, descripcion) => {
-  return "descripcion";
+  let connection;
+  try {
+    connection = await getConnection();
+
+    const ejercicio = await getEjercicioById(id);
+
+    const [ejerciciobyName] = await connection.query(
+      `UPDATE ejercicios SET descripcion=? WHERE id_ejercicio=?`,
+      [descripcion, id]
+    );
+
+    return "modificado";
+  } finally {
+    if (connection) connection.release();
+  }
 };
 
-const updateEjercicioImagen = async (id, imagen) => {
-  return "imagen";
+//modificar la imagen
+const updateEjercicioImagen = async (id, nombreEncriptado) => {
+  let connection;
+  try {
+    connection = await getConnection();
+
+    const ejercicio = await getEjercicioById(id);
+
+    const [ejerciciobyName] = await connection.query(
+      `UPDATE ejercicios SET imagen=? WHERE id_ejercicio=?`,
+      [nombreEncriptado, id]
+    );
+    return "modificado";
+  } finally {
+    if (connection) connection.release();
+  }
 };
 
+//modificar las tipologias
 const updateEjercicioTipologias = async (id, tipologias) => {
-  return "tipologias";
+  let connection;
+  try {
+    connection = await getConnection();
+
+    const ejercicio = await getEjercicioById(id);
+    //separo el string para recoger las diferentes tipologías en un array
+    const tipos = tipologias.split(",");
+
+    //borro los datos obsoletos
+    await connection.query(
+      `DELETE FROM ejercicios_tipos WHERE id_ejercicio=?`,
+      [id]
+    );
+    //inserto las tipologias en la tabla correspondiente
+    for (const tipologia of tipos) {
+      await connection.query(
+        `INSERT INTO ejercicios_tipos (id_ejercicio, id_tipologia) VALUES (?, ?)`,
+        [id, tipologia]
+      );
+    }
+    return "modificado";
+  } finally {
+    if (connection) connection.release();
+  }
 };
+
+//modificar grupos musculaers
 const updateEjercicioGruposMusculares = async (id, gruposMusculares) => {
-  return "gruposMusculares";
+  let connection;
+  try {
+    connection = await getConnection();
+
+    const ejercicio = await getEjercicioById(id);
+    //separo el string para recoger las diferentes tipologías en un array
+    const grupos = gruposMusculares.split(",");
+
+    //borro los datos obsoletos
+    await connection.query(
+      `DELETE FROM ejercicios_gruposMusculares WHERE id_ejercicio=?`,
+      [id]
+    );
+    //inserto las tipologias en la tabla correspondiente
+    for (const grupo of grupos) {
+      await connection.query(
+        `INSERT INTO ejercicios_gruposMusculares (id_ejercicio, id_grupoMuscular) VALUES (?, ?)`,
+        [id, grupo]
+      );
+    }
+    return "modificado";
+  } finally {
+    if (connection) connection.release();
+  }
 };
 
+//filtro tipologia
 const buscarTipologia = async (id_tipologia) => {
-  return "tipologia";
+  let connection;
+  try {
+    connection = await getConnection();
+
+    const [filtroTipos] = await connection.query(
+      `SELECT * FROM ejercicios WHERE id_ejercicio IN(SELECT id_ejercicio FROM ejercicios_tipos WHERE id_tipologia=?);
+      `,
+      [id_tipologia]
+    );
+
+    return filtroTipos;
+  } finally {
+    if (connection) connection.release();
+  }
 };
 
+//filtro grupo Muscular
 const buscarGrupoMuscular = async (id_grupoMuscular) => {
-  return "grupo muscular";
+  let connection;
+  try {
+    connection = await getConnection();
+
+    const [filtroGrupos] = await connection.query(
+      `SELECT * FROM ejercicios WHERE id_ejercicio IN(SELECT id_ejercicio FROM ejercicios_gruposMusculares WHERE id_grupoMuscular=?); `,
+      [id_grupoMuscular]
+    );
+
+    return filtroGrupos;
+  } finally {
+    if (connection) connection.release();
+  }
 };
 
 //recojo ejercicio por nombre de ejercicio
